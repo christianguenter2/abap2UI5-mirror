@@ -38,6 +38,13 @@ CLASS z5ui5_cl_core_client IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD z5ui5_if_client~follow_up_action.
+
+     mo_action->ms_next-s_set-s_follow_up_action-custom_js = val.
+
+  ENDMETHOD.
+
+
   METHOD z5ui5_if_client~get.
 
     result = VALUE #(
@@ -82,14 +89,42 @@ CLASS z5ui5_cl_core_client IMPLEMENTATION.
 
   METHOD z5ui5_if_client~message_box_display.
 
-    mo_action->ms_next-s_set-s_msg_box = VALUE #( text = text type = type ).
+    mo_action->ms_next-s_set-s_msg_box = VALUE #(
+                                                  text              = text
+                                                  type              = type
+                                                  title             = title
+                                                  styleclass        = styleclass
+                                                  onclose           = onclose
+                                                  actions           = actions
+                                                  emphasizedaction  = emphasizedaction
+                                                  initialfocus      = initialfocus
+                                                  textdirection     = textdirection
+                                                  icon              = icon
+                                                  details           = details
+                                                  closeOnNavigation = closeOnNavigation
+                                                ).
 
   ENDMETHOD.
 
 
   METHOD z5ui5_if_client~message_toast_display.
 
-    mo_action->ms_next-s_set-s_msg_toast = VALUE #( text = text ).
+    mo_action->ms_next-s_set-s_msg_toast = VALUE #(
+                                                    text                     = text
+                                                    duration                 = duration
+                                                    width                    = width
+                                                    my                       = my
+                                                    at                       = at
+                                                    of                       = of
+                                                    offset                   = offset
+                                                    collision                = collision
+                                                    onclose                  = onclose
+                                                    autoclose                = autoclose
+                                                    animationtimingfunction  = animationtimingfunction
+                                                    animationduration        = animationduration
+                                                    closeonbrowsernavigation = closeonbrowsernavigation
+                                                    class                    = class
+                                                  ).
 
   ENDMETHOD.
 
@@ -317,11 +352,4 @@ CLASS z5ui5_cl_core_client IMPLEMENTATION.
          t_arg = t_arg ).
 
   ENDMETHOD.
-
-  METHOD z5ui5_if_client~follow_up_action.
-
-     mo_action->ms_next-s_set-s_follow_up_action-custom_js = val.
-
-  ENDMETHOD.
-
 ENDCLASS.
