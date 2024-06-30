@@ -91,6 +91,10 @@ CLASS z5ui5_cl_core_app_startup IMPLEMENTATION.
         press = client->_event( `OPEN_INFO` )
     ).
 
+* page2->message_strip(
+*   `Hey! Are you already following the new abap2UI5 page on LinkedIn?`
+*     )->get( )->link( )->link( text = ` Check it out here...` href = `https://www.linkedin.com/company/abap2ui5` target = `blank` ).
+
     DATA(simple_form2) = page2->simple_form(
         editable                = abap_true
         layout                  = `ResponsiveGridLayout`
@@ -182,6 +186,8 @@ CLASS z5ui5_cl_core_app_startup IMPLEMENTATION.
     simple_form2->label( `` ).
     simple_form2->text( `` ).
 
+    simple_form2->toolbar( )->title( `Contribution` ).
+
     simple_form2->label( `Open a Pull Request` ).
     simple_form2->link( text = `You added a new feature or fixed a bug?`
                target        = `_blank`
@@ -192,37 +198,27 @@ CLASS z5ui5_cl_core_app_startup IMPLEMENTATION.
                  target      = `_blank`
                  href        = `https://github.com/abap2UI5/abap2UI5/issues` ).
 
-*    simple_form2->label( `` ).
-*    simple_form2->text( `` ).
+    simple_form2->toolbar( )->title( `Social Media` ).
 
-    simple_form2->toolbar( )->title( `The Project` ).
+*    simple_form2->label( `Stay Connected` ).
+*    simple_form2->link( text   = `Repository on GitHub`
+*                        target = `_blank`
+*                        href   = `https://github.com/abap2UI5/abap2UI5` ).
 
-*    simple_form2->label( `Links & More` ).
-    simple_form2->label( `Social` ).
-    simple_form2->link( text   = `Repository on GitHub`
-                        target = `_blank`
-                        href   = `https://github.com/abap2UI5/abap2UI5` ).
-
-    simple_form2->label( ).
-    simple_form2->link( text   = `Blog Series on SAP Community`
-                        target = `_blank`
-                        href   = `https://community.sap.com/t5/technology-blogs-by-members/abap2ui5-1-introduction-developing-ui5-apps-purely-in-abap/ba-p/13567635` ).
+*    simple_form2->label( ).
+*    simple_form2->link( text   = `Blog Series on SAP Community`
+*                        target = `_blank`
+*                        href   = `https://community.sap.com/t5/technology-blogs-by-members/abap2ui5-1-introduction-developing-ui5-apps-purely-in-abap/ba-p/13567635` ).
 
     simple_form2->label( ).
-    simple_form2->link( text   = `News on Twitter`
+    simple_form2->link( text   = `Follow abap2UI5 on Linkedin`
                         target = `_blank`
-                        href   = `https://twitter.com/abap2UI5` ).
+                        href   = `https://www.linkedin.com/company/abap2ui5` ).
 
-    simple_form2->label( `` ).
-    simple_form2->text( `` ).
-
-*    simple_form2->label( `Social` ).
-
-
-    simple_form2->label( `Feedback` ).
-    simple_form2->link( text   = `Contact`
+    simple_form2->label( ).
+    simple_form2->link( text   = `www.abap2UI5.org`
                         target = `_blank`
-                        href   =  `https://taplink.cc/oblomov` ).
+                        href   = `http://www.abap2UI5.org` ).
 
     client->view_display( page2->stringify( ) ).
 
@@ -242,7 +238,7 @@ CLASS z5ui5_cl_core_app_startup IMPLEMENTATION.
 
     IF client->get( )-check_on_navigated = abap_true.
       TRY.
-          DATA(lo_f4) = CAST z5ui5_cl_popup_to_select( client->get_app( client->get( )-s_draft-id_prev_app ) ).
+          DATA(lo_f4) = CAST z5ui5_cl_pop_to_select( client->get_app( client->get( )-s_draft-id_prev_app ) ).
           DATA(ls_result) = lo_f4->result( ).
           IF ls_result-check_confirmed = abap_true.
 
@@ -287,10 +283,11 @@ CLASS z5ui5_cl_core_app_startup IMPLEMENTATION.
       WHEN 'VALUE_HELP'.
         TRY.
             mt_classes = z5ui5_cl_util=>rtti_get_classes_impl_intf( z5ui5_cl_util=>rtti_get_intfname_by_ref( li_app ) ).
-            client->nav_app_call( z5ui5_cl_popup_to_select=>factory( mt_classes ) ).
           CATCH cx_root.
-            client->message_box_display( `The value help is not available on your system, upgrade to a higher release first` ).
+            client->message_box_display( `Unfortunately the value help is not available on your ABAP release!` ).
+            RETURN.
         ENDTRY.
+        client->nav_app_call( z5ui5_cl_pop_to_select=>factory( mt_classes ) ).
     ENDCASE.
 
   ENDMETHOD.

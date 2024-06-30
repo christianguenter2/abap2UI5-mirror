@@ -97,12 +97,37 @@ INTERFACE z5ui5_if_client
 
   METHODS message_box_display
     IMPORTING
-      text TYPE clike
-      type TYPE clike DEFAULT 'information'.
+      text              TYPE clike
+      type              TYPE clike DEFAULT `information`
+      title             TYPE clike OPTIONAL
+      styleclass        TYPE clike OPTIONAL
+      onclose           TYPE clike OPTIONAL
+      actions           TYPE string_table OPTIONAL
+      emphasizedaction  TYPE clike OPTIONAL
+      initialfocus      TYPE clike OPTIONAL
+      textdirection     TYPE clike OPTIONAL
+      icon              TYPE clike OPTIONAL
+      details           TYPE clike OPTIONAL
+      closeonnavigation TYPE abap_bool DEFAULT abap_true
+    PREFERRED PARAMETER text.
 
   METHODS message_toast_display
     IMPORTING
-      text TYPE string.
+      text                     TYPE clike
+      duration                 TYPE clike OPTIONAL
+      width                    TYPE clike OPTIONAL
+      my                       TYPE clike OPTIONAL
+      at                       TYPE clike OPTIONAL
+      of                       TYPE clike OPTIONAL
+      offset                   TYPE clike OPTIONAL
+      collision                TYPE clike OPTIONAL
+      onclose                  TYPE clike DEFAULT ``
+      autoclose                TYPE abap_bool DEFAULT abap_true
+      animationtimingfunction  TYPE clike OPTIONAL
+      animationduration        TYPE clike OPTIONAL
+      closeonbrowsernavigation TYPE abap_bool DEFAULT abap_true
+      class                    TYPE clike OPTIONAL
+    PREFERRED PARAMETER text.
 
   METHODS _event
     IMPORTING
@@ -153,10 +178,6 @@ INTERFACE z5ui5_if_client
       custom_filter TYPE REF TO z5ui5_if_ajson_filter OPTIONAL
     RETURNING
       VALUE(result) TYPE string.
-
-  METHODS _bind_clear
-    IMPORTING
-      val TYPE data.
 
   METHODS clear
     IMPORTING

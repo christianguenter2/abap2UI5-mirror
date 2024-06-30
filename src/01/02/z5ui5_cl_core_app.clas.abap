@@ -80,9 +80,9 @@ CLASS z5ui5_cl_core_app IMPLEMENTATION.
 
             lo_model->attri_refs_update( ).
 
-            clear mt_attri->*.
+            CLEAR mt_attri->*.
 
-            DATA(lo_dissolver) = NEW z5ui5_cl_core_dissolve_srv(
+            DATA(lo_dissolver) = NEW z5ui5_cl_core_diss_srv(
               attri = mt_attri
               app   = mo_app ).
 
@@ -96,9 +96,11 @@ CLASS z5ui5_cl_core_app IMPLEMENTATION.
             result = z5ui5_cl_util=>xml_stringify( me ).
 
           CATCH cx_root.
+
             RAISE EXCEPTION TYPE z5ui5_cx_util_error
               EXPORTING
-                val = `<p>` && x2->get_text( ) && `<p> Please check if all generic data references are public attributes of your class`.
+                val = `<p>` && x2->get_text( ) && ` or <p> Please check if all generic data references are public attributes of your class`.
+
         ENDTRY.
     ENDTRY.
 

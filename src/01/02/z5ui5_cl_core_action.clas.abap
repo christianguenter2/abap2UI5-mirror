@@ -185,6 +185,14 @@ CLASS z5ui5_cl_core_action IMPLEMENTATION.
     result->ms_actual-check_on_navigated = abap_true.
     result->ms_next-s_set                = ms_next-s_set.
 
+    result->ms_next-s_set-s_view-check_update_model = abap_false.
+    result->ms_next-s_set-s_view_nest-check_update_model = abap_false.
+    result->ms_next-s_set-s_view_nest2-check_update_model = abap_false.
+    result->ms_next-s_set-s_popup-check_update_model = abap_false.
+    result->ms_next-s_set-s_popover-check_update_model = abap_false.
+    CLEAR result->ms_next-s_set-s_msg_box.
+    CLEAR result->ms_next-s_set-s_msg_toast.
+
   ENDMETHOD.
 
 ENDCLASS.

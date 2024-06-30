@@ -5,6 +5,7 @@ CLASS z5ui5_cl_util_api DEFINITION
 
   PUBLIC SECTION.
 
+
     TYPES:
       BEGIN OF ty_s_token,
         key      TYPE string,
@@ -264,9 +265,15 @@ CLASS z5ui5_cl_util_api DEFINITION
       RETURNING
         VALUE(result) TYPE abap_attrdescr_tab.
 
-    CLASS-METHODS rtti_get_t_attri_by_struc
+    CLASS-METHODS rtti_get_t_attri_by_any
       IMPORTING
         !val          TYPE any
+      RETURNING
+        VALUE(result) TYPE cl_abap_structdescr=>component_table.
+
+    CLASS-METHODS rtti_get_t_attri_by_table_name
+      IMPORTING
+        table_name    TYPE any
       RETURNING
         VALUE(result) TYPE cl_abap_structdescr=>component_table.
 
@@ -366,8 +373,21 @@ CLASS z5ui5_cl_util_api DEFINITION
       RETURNING
         VALUE(result) TYPE string.
 
+    CLASS-METHODS check_raise_srtti_installed.
+
+    CLASS-METHODS get_comps_by_data
+      IMPORTING !data         TYPE REF TO data
+      RETURNING VALUE(result) TYPE abap_component_tab ##NEEDED.
+
+    CLASS-METHODS get_comp_by_struc
+      IMPORTING !type         TYPE REF TO cl_abap_datadescr
+      RETURNING VALUE(result) TYPE abap_component_tab ##NEEDED.
+
   PROTECTED SECTION.
+
   PRIVATE SECTION.
+
+
 ENDCLASS.
 
 
@@ -494,7 +514,7 @@ CLASS z5ui5_cl_util_api IMPLEMENTATION.
 
   METHOD filter_get_multi_by_data.
 
-    LOOP AT rtti_get_t_attri_by_struc( val ) REFERENCE INTO DATA(lr_comp).
+    LOOP AT rtti_get_t_attri_by_any( val ) REFERENCE INTO DATA(lr_comp).
       INSERT VALUE #( name = lr_comp->name ) INTO TABLE result.
     ENDLOOP.
 
@@ -821,7 +841,7 @@ CLASS z5ui5_cl_util_api IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD rtti_get_t_attri_by_struc.
+  METHOD rtti_get_t_attri_by_any.
 
     TRY.
         DATA(lo_type) = cl_abap_typedescr=>describe_by_data( val ).
@@ -1097,28 +1117,17 @@ CLASS z5ui5_cl_util_api IMPLEMENTATION.
 
   METHOD xml_srtti_parse.
 
+    check_raise_srtti_installed( ).
+
     DATA srtti TYPE REF TO object.
-    DATA rtti_type TYPE REF TO cl_abap_typedescr.
-    DATA lo_datadescr TYPE REF TO cl_abap_datadescr.
-
-    IF rtti_check_class_exists( 'ZCL_SRTTI_TYPEDESCR' ) = abap_false.
-
-      DATA(lv_link) = `https://github.com/sandraros/S-RTTI`.
-      DATA(lv_text) = `<p>Please install the open-source project S-RTTI by sandraros and try again: <a href="` &&
-                       lv_link && `" style="color:blue; font-weight:600;" target="_blank">(link)</a></p>`.
-
-      RAISE EXCEPTION TYPE z5ui5_cx_util_error
-        EXPORTING
-          val = lv_text.
-
-    ENDIF.
-
     CALL TRANSFORMATION id SOURCE XML rtti_data RESULT srtti = srtti.
 
+    DATA rtti_type TYPE REF TO cl_abap_typedescr.
     CALL METHOD srtti->('GET_RTTI')
       RECEIVING
         rtti = rtti_type.
 
+    DATA lo_datadescr TYPE REF TO cl_abap_datadescr.
     lo_datadescr ?= rtti_type.
 
     CREATE DATA result TYPE HANDLE lo_datadescr.
@@ -1130,19 +1139,9 @@ CLASS z5ui5_cl_util_api IMPLEMENTATION.
 
   METHOD xml_srtti_stringify.
 
+    check_raise_srtti_installed( ).
+
     DATA srtti TYPE REF TO object.
-    IF rtti_check_class_exists( 'ZCL_SRTTI_TYPEDESCR' ) = abap_false.
-
-      DATA(lv_link) = `https://github.com/sandraros/S-RTTI`.
-      DATA(lv_text) = `<p>Please install the open-source project S-RTTI by sandraros and try again: <a href="` &&
-                       lv_link && `" style="color:blue; font-weight:600;" target="_blank">(link)</a></p>`.
-
-      RAISE EXCEPTION TYPE z5ui5_cx_util_error
-        EXPORTING
-          val = lv_text.
-
-    ENDIF.
-
     DATA(lv_classname) = 'ZCL_SRTTI_TYPEDESCR'.
     CALL METHOD (lv_classname)=>('CREATE_BY_DATA_OBJECT')
       EXPORTING
@@ -1197,4 +1196,107 @@ CLASS z5ui5_cl_util_api IMPLEMENTATION.
     RAISE EXCEPTION TYPE z5ui5_cx_util_error EXPORTING val = v.
 
   ENDMETHOD.
+
+  METHOD check_raise_srtti_installed.
+
+    IF rtti_check_class_exists( 'ZCL_SRTTI_TYPEDESCR' ) = abap_false.
+
+      DATA(lv_link) = `https://github.com/sandraros/S-RTTI`.
+      DATA(lv_text) = `<p>Please install the open-source project S-RTTI by sandraros and try again: <a href="` &&
+                       lv_link && `" style="color:blue; font-weight:600;" target="_blank">(link)</a></p>`.
+
+      RAISE EXCEPTION TYPE z5ui5_cx_util_error
+        EXPORTING
+          val = lv_text.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD get_comps_by_data.
+
+*    TRY.
+*        FIELD-SYMBOLS <any> type any.
+*        ASSign data->* to <any>.
+*        DATA(typedesc) = cl_abap_typedescr=>describe_by_data( data->* ).
+*
+*        CASE typedesc->kind.
+*
+*          WHEN cl_abap_typedescr=>kind_table.
+*
+*            DATA(tabledesc) = CAST cl_abap_tabledescr( typedesc ).
+*            DATA(structdesc) = CAST cl_abap_structdescr( tabledesc->get_table_line_type( ) ).
+*
+*          WHEN cl_abap_typedescr=>kind_struct.
+*
+*            structdesc = CAST cl_abap_structdescr( typedesc ).
+*
+*          WHEN OTHERS.
+*        ENDCASE.
+*
+*        DATA(comp) = structdesc->get_components( ).
+*
+*        LOOP AT comp INTO DATA(com).
+*
+*          IF com-as_include = abap_true.
+*            APPEND LINES OF get_comp_by_struc( com-type ) TO result.
+*          ELSE.
+*            APPEND com TO result.
+*          ENDIF.
+*
+*        ENDLOOP.
+*
+*      CATCH cx_root.
+*    ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD get_comp_by_struc.
+
+*    DATA struc TYPE REF TO cl_abap_structdescr.
+*    struc ?= type.
+*    DATA(comp) = struc->get_components( ).
+*    LOOP AT comp INTO DATA(com).
+*
+*      IF com-as_include = abap_true.
+*        APPEND LINES OF get_comp_by_struc( com-type ) TO result.
+*      ELSE.
+*        APPEND com TO result.
+*      ENDIF.
+*
+*    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD rtti_get_t_attri_by_table_name.
+
+    TRY.
+        DATA(lo_struct) = CAST cl_abap_structdescr( cl_abap_structdescr=>describe_by_name( table_name ) ).
+      CATCH cx_root.
+
+        TRY.
+            DATA(lo_tab) = CAST cl_abap_tabledescr( cl_abap_structdescr=>describe_by_name( table_name ) ).
+            lo_struct = CAST cl_abap_structdescr( lo_tab->get_table_line_type( ) ).
+          CATCH cx_root.
+            RETURN.
+        ENDTRY.
+
+    ENDTRY.
+
+    result = lo_struct->get_components( ).
+
+    LOOP AT result REFERENCE INTO DATA(lr_comp)
+         WHERE as_include = abap_true.
+
+      DATA(lt_attri) = rtti_get_t_attri_by_include( type  = lr_comp->type
+                                                    attri = lr_comp->name ).
+
+      DELETE result.
+      INSERT LINES OF lt_attri INTO TABLE result.
+    ENDLOOP.
+
+  ENDMETHOD.
+
 ENDCLASS.

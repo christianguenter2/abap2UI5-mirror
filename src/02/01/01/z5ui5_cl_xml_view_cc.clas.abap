@@ -49,6 +49,7 @@ CLASS z5ui5_cl_xml_view_cc DEFINITION
         !onphoto      TYPE clike OPTIONAL
       RETURNING
         VALUE(result) TYPE REF TO z5ui5_cl_xml_view .
+
     METHODS bwip_js
       IMPORTING
         !bcid         TYPE clike OPTIONAL
@@ -72,6 +73,7 @@ CLASS z5ui5_cl_xml_view_cc DEFINITION
         !setupdate      TYPE clike OPTIONAL
       RETURNING
         VALUE(result)   TYPE REF TO z5ui5_cl_xml_view .
+
     METHODS geolocation
       IMPORTING
         !finished           TYPE clike OPTIONAL
@@ -89,16 +91,22 @@ CLASS z5ui5_cl_xml_view_cc DEFINITION
 
     METHODS info_frontend
       IMPORTING
-        !finished          TYPE clike OPTIONAL
-        !ui5_version       TYPE any OPTIONAL
-        !ui5_gav           TYPE any OPTIONAL
-        !ui5_theme         TYPE any OPTIONAL
-        !device_os         TYPE any OPTIONAL
-        !device_systemtype TYPE any OPTIONAL
-        !device_browser    TYPE any OPTIONAL
+        !finished              TYPE clike OPTIONAL
+        !ui5_version           TYPE clike OPTIONAL
+        !device_height         TYPE clike OPTIONAL
+        !device_width          TYPE clike OPTIONAL
+        !device_phone          TYPE clike OPTIONAL
+        !device_desktop        TYPE clike OPTIONAL
+        !device_tablet         TYPE clike OPTIONAL
+        !device_combi          TYPE clike OPTIONAL
+        !ui5_gav               TYPE clike OPTIONAL
+        !ui5_theme             TYPE clike OPTIONAL
+        !device_os             TYPE clike OPTIONAL
+        !device_systemtype     TYPE clike OPTIONAL
+        !device_browser        TYPE clike OPTIONAL
           PREFERRED PARAMETER finished
       RETURNING
-        VALUE(result)      TYPE REF TO z5ui5_cl_xml_view .
+        VALUE(result)          TYPE REF TO z5ui5_cl_xml_view .
 
     METHODS spreadsheet_export
       IMPORTING
@@ -124,7 +132,7 @@ CLASS z5ui5_cl_xml_view_cc DEFINITION
         !checkdirectupload TYPE clike OPTIONAL
         !filetype          TYPE clike OPTIONAL
         !icon              TYPE clike OPTIONAL
-        !ENABLED           TYPE clike OPTIONAL
+        !enabled           TYPE clike OPTIONAL
       RETURNING
         VALUE(result)      TYPE REF TO z5ui5_cl_xml_view .
 
@@ -141,6 +149,12 @@ CLASS z5ui5_cl_xml_view_cc DEFINITION
         VALUE(result) TYPE REF TO z5ui5_cl_xml_view .
 
     METHODS title
+      IMPORTING
+        !title        TYPE clike OPTIONAL
+      RETURNING
+        VALUE(result) TYPE REF TO z5ui5_cl_xml_view .
+
+    METHODS lp_title
       IMPORTING
         !title        TYPE clike OPTIONAL
       RETURNING
@@ -186,6 +200,18 @@ CLASS z5ui5_cl_xml_view_cc DEFINITION
       RETURNING
         VALUE(result) TYPE REF TO z5ui5_cl_xml_view .
 
+    METHODS approve_popover
+      IMPORTING
+        !placement    TYPE clike OPTIONAL
+        !class        TYPE clike OPTIONAL
+        !text         TYPE clike OPTIONAL
+        !btn_txt      TYPE clike OPTIONAL
+        !btn_type     TYPE clike OPTIONAL
+        !btn_icon     TYPE clike OPTIONAL
+        !btn_event    TYPE clike OPTIONAL
+      RETURNING
+        VALUE(result) TYPE REF TO z5ui5_cl_xml_view .
+
     METHODS constructor
       IMPORTING
         !view TYPE REF TO z5ui5_cl_xml_view .
@@ -197,6 +223,17 @@ ENDCLASS.
 
 
 CLASS z5ui5_cl_xml_view_cc IMPLEMENTATION.
+
+
+  METHOD approve_popover.
+    result = mo_view.
+
+    mo_view->popover( showheader = abap_false placement = placement class = class )->hbox( justifycontent = `Center`
+      )->vbox( justifycontent = `Center` alignitems = `Center`
+        )->text( text
+        )->button( type = btn_type text = btn_txt icon = btn_icon press = btn_event ).
+
+  ENDMETHOD.
 
 
   METHOD bwip_js.
@@ -257,7 +294,7 @@ CLASS z5ui5_cl_xml_view_cc IMPLEMENTATION.
     mo_view->_generic( ns   = `html`
                        name = `style` ).
 
-    CALL METHOD ('Z2UI5_CL_CC_DEMO_OUTPUT')=>('GET_STYLE')
+    CALL METHOD ('Z2UI5_CL_CC_DEMO_OUT')=>('GET_STYLE')
       RECEIVING
         result = lv_style.
     result = mo_view->_cc_plain_xml( lv_style )->html( val ).
@@ -355,7 +392,13 @@ CLASS z5ui5_cl_xml_view_cc IMPLEMENTATION.
                                 ( n = `device_os`  v = device_os )
                                 ( n = `device_systemtype`  v = device_systemtype )
                                 ( n = `device_browser`  v = device_browser )
-              ) ).
+                                ( n = `device_phone`   v = device_phone )
+                                ( n = `device_desktop` v = device_desktop )
+                                ( n = `device_table`   v = device_tablet )
+                                ( n = `device_combi`   v = device_combi )
+                                ( n = `device_height`   v = device_height )
+                                ( n = `device_width`   v = device_width ) )
+               ).
 
   ENDMETHOD.
 
@@ -460,6 +503,14 @@ CLASS z5ui5_cl_xml_view_cc IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD lp_title.
+
+    result = mo_view.
+    mo_view->_generic( name = `LPTitle`
+              ns            = `z2ui5`
+              t_prop        = VALUE #( ( n = `title`  v = title ) ) ).
+
+  ENDMETHOD.
 
   METHOD title.
 
