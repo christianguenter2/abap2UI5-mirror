@@ -9,12 +9,15 @@ INTERFACE z5ui5_if_types
   TYPES ty_t_name_value TYPE STANDARD TABLE OF ty_s_name_value WITH EMPTY KEY.
 
   TYPES:
-    BEGIN OF ty_s_http_request_get,
-      t_config                TYPE ty_t_name_value,
+    BEGIN OF ty_s_http_config,
+      src                     TYPE string,
+      theme                   TYPE string,
       content_security_policy TYPE string,
+      styles_css              TYPE string,
+      title                   TYPE string,
+      t_add_config            TYPE ty_t_name_value,
       custom_js               TYPE string,
-      json_model_limit        TYPE string,
-    END OF ty_s_http_request_get.
+    END OF ty_s_http_config.
 
   TYPES:
     BEGIN OF ty_s_draft,
@@ -29,6 +32,7 @@ INTERFACE z5ui5_if_types
       origin           TYPE string,
       pathname         TYPE string,
       search           TYPE string,
+      hash             TYPE string,
       t_startup_params TYPE ty_t_name_value,
     END OF ty_s_config.
 
@@ -42,13 +46,12 @@ INTERFACE z5ui5_if_types
       s_draft                TYPE ty_s_draft,
       s_config               TYPE ty_s_config,
       t_comp_params          TYPE ty_t_name_value,
+      r_event_data           TYPE REF TO data,
     END OF ty_s_get.
 
   TYPES:
     BEGIN OF ty_s_event_control,
-      check_view_destroy    TYPE abap_bool,
       check_allow_multi_req TYPE abap_bool,
-*      model_name            TYPE string,
     END OF ty_s_event_control.
 
 ENDINTERFACE.

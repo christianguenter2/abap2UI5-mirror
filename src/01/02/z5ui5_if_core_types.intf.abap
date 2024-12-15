@@ -3,8 +3,8 @@ INTERFACE z5ui5_if_core_types
 
   CONSTANTS:
     BEGIN OF cs_ui5,
-      event_backend_function  TYPE string VALUE `eB`,
-      event_frontend_function TYPE string VALUE `eF`,
+      event_backend_function  TYPE string VALUE `.eB`,
+      event_frontend_function TYPE string VALUE `.eF`,
       two_way_model           TYPE string VALUE `XX`,
     END OF cs_ui5.
 
@@ -16,15 +16,34 @@ INTERFACE z5ui5_if_core_types
     END OF cs_bind_type.
 
   TYPES:
+    BEGIN OF ty_s_http_req,
+      method TYPE string,
+      body   TYPE string,
+    END OF ty_s_http_req.
+
+  TYPES:
+    BEGIN OF ty_s_http_res,
+      body          TYPE string,
+      status_code   TYPE i,
+      status_reason TYPE string,
+      t_header      TYPE z5ui5_if_types=>ty_t_name_value,
+      BEGIN OF s_stateful,
+        active   TYPE i,
+        switched TYPE abap_bool,
+      END OF s_stateful,
+    END OF ty_s_http_res.
+
+  TYPES:
     BEGIN OF ty_s_bind_config,
-      path_only          TYPE abap_bool,
-      view               TYPE string,
-      custom_mapper      TYPE REF TO z5ui5_if_ajson_mapping,
-      custom_mapper_back TYPE REF TO z5ui5_if_ajson_mapping,
-      custom_filter      TYPE REF TO z5ui5_if_ajson_filter,
-      custom_filter_back TYPE REF TO z5ui5_if_ajson_filter,
-      tab                TYPE REF TO data,
-      tab_index          TYPE i,
+      path_only            TYPE abap_bool,
+      view                 TYPE string,
+      custom_mapper        TYPE REF TO z5ui5_if_ajson_mapping,
+      custom_mapper_back   TYPE REF TO z5ui5_if_ajson_mapping,
+      custom_filter        TYPE REF TO z5ui5_if_ajson_filter,
+      custom_filter_back   TYPE REF TO z5ui5_if_ajson_filter,
+      tab                  TYPE REF TO data,
+      tab_index            TYPE i,
+      switch_default_model TYPE abap_bool,
     END OF ty_s_bind_config.
 
   TYPES:
@@ -48,10 +67,11 @@ INTERFACE z5ui5_if_core_types
   TYPES:
     BEGIN OF ty_s_next_frontend,
       BEGIN OF s_view,
-        xml                TYPE string,
-        check_destroy      TYPE abap_bool,
-        check_update_model TYPE abap_bool,
-        update_path        TYPE string_table,
+        xml                       TYPE string,
+        switchDefaultModelAnnoURI TYPE string,
+        switch_default_model_path TYPE string,
+        check_destroy             TYPE abap_bool,
+        check_update_model        TYPE abap_bool,
       END OF s_view,
       BEGIN OF s_view_nest,
         xml                TYPE string,
@@ -83,16 +103,40 @@ INTERFACE z5ui5_if_core_types
         check_update_model TYPE abap_bool,
       END OF s_popover,
       BEGIN OF s_msg_box,
-        type TYPE string,
-        text TYPE string,
+        type              TYPE string,
+        text              TYPE string,
+        title             TYPE string,
+        styleclass        TYPE string,
+        onclose           TYPE string,
+        actions           TYPE string_table,
+        emphasizedaction  TYPE string,
+        initialfocus      TYPE string,
+        textdirection     TYPE string,
+        icon              TYPE string,
+        details           TYPE string,
+        closeonnavigation TYPE string,
       END OF s_msg_box,
       BEGIN OF s_msg_toast,
-        text TYPE string,
+        class                    TYPE string,
+        text                     TYPE string,
+        duration                 TYPE string,
+        width                    TYPE string,
+        my                       TYPE string,
+        at                       TYPE string,
+        of                       TYPE string,
+        offset                   TYPE string,
+        collision                TYPE string,
+        onclose                  TYPE string,
+        autoclose                TYPE string,
+        animationtimingfunction  TYPE string,
+        animationduration        TYPE string,
+        closeonbrowsernavigation TYPE string,
       END OF s_msg_toast,
       BEGIN OF s_follow_up_action,
-*        frontent_event TYPE string,
-        custom_js      TYPE string,
+        custom_js TYPE string_table,
       END OF s_follow_up_action,
+*      handler_attrs TYPE ty_s_http_handler_attributes,
+      s_stateful TYPE ty_s_http_res-s_stateful,
     END OF ty_s_next_frontend.
 
   TYPES:
@@ -100,10 +144,11 @@ INTERFACE z5ui5_if_core_types
       o_app_call  TYPE REF TO z5ui5_if_app,
       o_app_leave TYPE REF TO z5ui5_if_app,
       s_set       TYPE ty_s_next_frontend,
+      r_data      TYPE REF TO data,
     END OF ty_s_next.
 
   TYPES:
-    BEGIN OF ty_s_http_response_post,
+    BEGIN OF ty_s_response,
       BEGIN OF s_front,
         params    TYPE ty_s_next_frontend,
         id        TYPE string,
@@ -111,28 +156,27 @@ INTERFACE z5ui5_if_core_types
         app       TYPE string,
       END OF s_front,
       model TYPE string,
-    END OF ty_s_http_response_post.
+    END OF ty_s_response.
 
   TYPES:
-    BEGIN OF ty_s_http_request_post,
+    BEGIN OF ty_s_request,
       o_model TYPE REF TO z5ui5_if_ajson,
       BEGIN OF s_front,
         id          TYPE string,
         view        TYPE string,
         t_event_arg TYPE string_table,
-*        app_start        TYPE string,
+        event       TYPE string,
+        o_comp_data TYPE REF TO z5ui5_if_ajson,
         origin      TYPE string,
         pathname    TYPE string,
         search      TYPE string,
-        event       TYPE string,
-        o_comp_data TYPE REF TO z5ui5_if_ajson,
+        hash        TYPE string,
       END OF s_front,
       BEGIN OF s_control,
         check_launchpad TYPE abap_bool,
         app_start       TYPE string,
       END OF s_control,
-    END OF ty_s_http_request_post.
-
+    END OF ty_s_request.
 
   TYPES:
     BEGIN OF ty_s_draft,
@@ -159,8 +203,9 @@ INTERFACE z5ui5_if_core_types
       view               TYPE string,
       s_draft            TYPE ty_s_draft,
       s_config           TYPE ty_s_config,
+      r_data             TYPE REF TO data,
     END OF ty_s_actual.
 
-  TYPES ty_s_db TYPE z5ui5_t_core_01.
+  TYPES ty_s_db TYPE z5ui5_t_01.
 
 ENDINTERFACE.
